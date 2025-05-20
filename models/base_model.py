@@ -25,8 +25,10 @@ class BaseModel:
         else:
             # Attributes that can be set via kwargs for any BaseModel derivative
             # This includes Columns defined in subclasses.
-            allowed_keys = set(self.__class__.__dict__.keys()) # Get class-level attributes
-            # Add instance-level attributes that might be set before this loop by a superclass or similar
+            # Get class-level attributes
+            allowed_keys = set(self.__class__.__dict__.keys())
+            # Add instance-level attributes that might be set before this loop
+            # by a superclass or similar
             # For BaseModel itself, primary ones are id, created_at, updated_at
             # This check needs to be robust for inheritance.
 
@@ -35,11 +37,14 @@ class BaseModel:
                     continue
 
                 # Check if the key is a legitimate attribute to set
-                # Legit: id, created_at, updated_at, or any Column name in the class hierarchy
-                if key not in ['id', 'created_at', 'updated_at'] and not hasattr(self.__class__, key):
-                    # If it's not a base known key and not a class attribute (like a Column)
+                # Legit: id, created_at, updated_at, or any Column name in class
+                if key not in ['id', 'created_at', 'updated_at'] and \
+                   not hasattr(self.__class__, key):
+                    # If it's not a base known key and not a class attribute
+                    # (like a Column)
                     # Then it's an unexpected kwarg for this model type.
-                    raise KeyError(f"Invalid attribute '{key}' for class {self.__class__.__name__}")
+                    raise KeyError(
+                        f"Invalid attribute '{key}' for class {self.__class__.__name__}")
 
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(

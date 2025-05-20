@@ -2,7 +2,7 @@
 """ Console Module """
 import cmd
 import sys
-import shlex # Import shlex for robust argument splitting
+import shlex  # Import shlex for robust argument splitting
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -163,12 +163,12 @@ class HBNBCommand(cmd.Cmd):
                 else:
                     # Attempt numeric conversion for unquoted values.
                     try:
-                        parsed_value = int(value_str) # Try int first
+                        parsed_value = int(value_str)  # Try int first
                     except ValueError:
                         try:
-                            parsed_value = float(value_str) # Then try float
+                            parsed_value = float(value_str)  # Then try float
                         except ValueError:
-                            parsed_value = value_str # Default to string
+                            parsed_value = value_str  # Default to string
 
                 setattr(new_instance, key, parsed_value)
             except ValueError:  # From param_type(value_str) if type is defined or int/float conversion
