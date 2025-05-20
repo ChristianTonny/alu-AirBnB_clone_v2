@@ -127,13 +127,13 @@ class HBNBCommand(cmd.Cmd):
             return
 
         new_instance = HBNBCommand.classes[class_name]()
-        
+
         for param in parts[1:]:
             if "=" not in param:
                 continue  # Skip malformed parameters
-            
+
             key, value_str = param.split("=", 1)
-            
+
             # Try to parse value
             try:
                 if value_str.startswith('"') and value_str.endswith('"'):
@@ -149,13 +149,13 @@ class HBNBCommand(cmd.Cmd):
             except ValueError:
                 # Skip if value parsing fails
                 continue
-        
+
         storage.save()
         print(new_instance.id)
-        # The second storage.save() call here is redundant as the BaseModel's __init__ already calls save().
-        # However, to match the original behavior (and the example output which implies it might be needed for specific test setups or older base model versions), 
-        # I'll keep it. If it's confirmed to be unnecessary, it can be removed.
-        # storage.save() 
+        # The second storage.save() call here is redundant as the BaseModel's
+        # __init__ already calls save(). However, to match the original behavior
+        # it can be uncommented if needed.
+        # storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -297,13 +297,13 @@ class HBNBCommand(cmd.Cmd):
         # first determine if kwargs or args
         if '{' in args[2] and '}' in args[2] and type(eval(args[2])) is dict:
             kwargs = eval(args[2])
-            args = []  # reformat kwargs into list, ex: [<name>, <value>, ...]
+            args = []  # reformat kwargs into list, ex: [<n>, <value>, ...]
             for k, v in kwargs.items():
                 args.append(k)
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -311,10 +311,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
