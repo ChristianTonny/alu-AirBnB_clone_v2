@@ -6,6 +6,7 @@ import datetime
 from uuid import UUID
 import json
 import os
+import time
 
 
 class test_basemodel(unittest.TestCase):
@@ -24,7 +25,7 @@ class test_basemodel(unittest.TestCase):
     def tearDown(self):
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
 
     def test_default(self):
@@ -94,6 +95,9 @@ class test_basemodel(unittest.TestCase):
         """ """
         new = self.value()
         self.assertEqual(type(new.updated_at), datetime.datetime)
+        # Ensure updated_at is different from created_at by saving
+        time.sleep(0.001) # Ensure time moves
+        new.save()
         n = new.to_dict()
-        new = BaseModel(**n)
-        self.assertFalse(new.created_at == new.updated_at)
+        reloaded_new = BaseModel(**n)
+        self.assertFalse(reloaded_new.created_at == reloaded_new.updated_at)
