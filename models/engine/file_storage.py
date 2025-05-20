@@ -16,7 +16,7 @@ class FileStorage:
         if cls is not None:
             filtered_dict = {}
             for key, value in FileStorage.__objects.items():
-                if type(value) == cls:
+                if isinstance(value, cls):
                     filtered_dict[key] = value
             return filtered_dict
         return FileStorage.__objects
@@ -61,10 +61,10 @@ class FileStorage:
                     'Review': Review
                   }
         try:
-            temp = {}
+            FileStorage.__objects = {}
             with open(FileStorage.__file_path, 'r') as f:
-                temp = json.load(f)
-                for key, val in temp.items():
-                    self.all()[key] = classes[val['__class__']](**val)
+                temp_load_dict = json.load(f)
+                for key, val_dict in temp_load_dict.items():
+                    FileStorage.__objects[key] = classes[val_dict['__class__']](**val_dict)
         except FileNotFoundError:
             pass

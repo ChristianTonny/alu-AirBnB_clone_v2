@@ -8,11 +8,13 @@ import os
 
 # Define the association table for the many-to-many relationship
 place_amenity = Table('place_amenity', Base.metadata,
-    Column('place_id', String(60), ForeignKey('places.id'),
-           primary_key=True, nullable=False),
-    Column('amenity_id', String(60), ForeignKey('amenities.id'),
-           primary_key=True, nullable=False)
-)
+                      Column('place_id', String(60),
+                             ForeignKey('places.id'),
+                             primary_key=True, nullable=False),
+                      Column('amenity_id', String(60),
+                             ForeignKey('amenities.id'),
+                             primary_key=True, nullable=False)
+                      )
 
 
 class Place(BaseModel, Base):
@@ -31,9 +33,11 @@ class Place(BaseModel, Base):
     amenity_ids = []
 
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-        reviews = relationship("Review", backref="place", cascade="all, delete-orphan")
+        reviews = relationship("Review", backref="place",
+                               cascade="all, delete-orphan")
         amenities = relationship("Amenity", secondary=place_amenity,
-                                viewonly=False, backref="place_amenities")
+                                 viewonly=False,
+                                 backref="place_amenities")
     else:
         @property
         def reviews(self):
@@ -49,7 +53,8 @@ class Place(BaseModel, Base):
         
         @property
         def amenities(self):
-            """Returns the list of Amenity instances based on the attribute amenity_ids"""
+            """Returns the list of Amenity instances based on the attribute
+            amenity_ids"""
             from models.amenity import Amenity
             amenity_list = []
             all_amenities = list(models.storage.all(Amenity).values())
