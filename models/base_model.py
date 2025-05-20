@@ -17,29 +17,44 @@ class BaseModel:
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
-        """Initialize a new BaseModel instance."""
-        from models import storage_type  # Moved import here
-
-        if storage_type == 'db':
-            # For DBStorage, id, created_at, updated_at are handled by SQLAlchemy
-            pass  # SQLAlchemy columns will be automatically managed
+        """Instatntiates a new model"""
+        if not kwargs:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
         else:
-            # For FileStorage
-            self.id = str(uuid.uuid4())  # Unique ID
-            self.created_at = datetime.now()  # Creation timestamp
-            self.updated_at = datetime.now()  # Update timestamp
+            # Attributes that can be set via kwargs for any BaseModel derivative
+            # This includes Columns defined in subclasses.
+            allowed_keys = set(self.__class__.__dict__.keys()) # Get class-level attributes
+            # Add instance-level attributes that might be set before this loop by a superclass or similar
+            # For BaseModel itself, primary ones are id, created_at, updated_at
+            # This check needs to be robust for inheritance.
 
-        if kwargs:
             for key, value in kwargs.items():
+                if key == "__class__":
+                    continue
+
+                # Check if the key is a legitimate attribute to set
+                # Legit: id, created_at, updated_at, or any Column name in the class hierarchy
+                if key not in ['id', 'created_at', 'updated_at'] and not hasattr(self.__class__, key):
+                    # If it's not a base known key and not a class attribute (like a Column)
+                    # Then it's an unexpected kwarg for this model type.
+                    raise KeyError(f"Invalid attribute '{key}' for class {self.__class__.__name__}")
+
                 if key == "created_at" or key == "updated_at":
-                    setattr(self, key, datetime.strptime(value,
-                                                         "%Y-%m-%dT%H:%M:%S.%f"))
-                elif key != "__class__":  # Ignore __class__
-                    # For FileStorage, set attributes directly.
-                    # For DBStorage, this will set attributes on the SQLAlchemy model.
-                    # If an attribute is not a mapped column in DBStorage,
-                    # SQLAlchemy might ignore it or handle it based on its configuration.
-                    setattr(self, key, value)
+                    value = datetime.strptime(
+                        value,
+                        '%Y-%m-%dT%H:%M:%S.%f'
+                    )
+                setattr(self, key, value)
+
+            # Set default values if not provided in kwargs
+            if "id" not in kwargs:
+                self.id = str(uuid.uuid4())
+            if "created_at" not in kwargs:
+                self.created_at = datetime.now()
+            if "updated_at" not in kwargs:
+                self.updated_at = datetime.now()
 
     def __str__(self):
         """Returns a string representation of the instance"""
