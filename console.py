@@ -2,7 +2,7 @@
 """ Console Module """
 import cmd
 import sys
-import shlex # Import shlex for robust argument splitting
+import shlex  # For splitting normally
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -11,7 +11,8 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError  # For catching DB errors
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 
 class HBNBCommand(cmd.Cmd):
@@ -127,31 +128,25 @@ class HBNBCommand(cmd.Cmd):
             return
 
         try:
-            arg_list = shlex.split(args)
+            params_list = shlex.split(args)
         except ValueError as e:
             print(f"** invalid input: {e} (check quotes) **")
             return
 
-        if not arg_list:
+        if not params_list:
             # Should not happen if args is not empty, but defensive
             print("** class name missing **")
             return
 
-        class_name = arg_list[0]
-        params_list = arg_list[1:]
-
-        if class_name not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-
+        class_name = params_list[0]
         new_instance = HBNBCommand.classes[class_name]()
 
-        for param_pair_str in params_list:
-            if "=" not in param_pair_str:
-                print(f"** skipping malformed parameter: {param_pair_str} **")
-                continue
+        # Parse parameters
+        for param_str in params_list[1:]:
+            if '=' not in param_str:
+                continue  # Skip if not a key=value pair
 
-            key, value_str = param_pair_str.split("=", 1)
+            key, value_str = param_str.split('=', 1)
             parsed_value = None
             try:
                 if value_str.startswith('"') and value_str.endswith('"'):
@@ -178,10 +173,18 @@ class HBNBCommand(cmd.Cmd):
             new_instance.save()
             print(new_instance.id)
         except IntegrityError:
-            # This message can be tailored if tests expect something more specific
+            # This will catch issues like missing non-nullable fields (e.g., User.email)
             print("** failed to save: missing required field or database constraint violation **")
+            if HBNBCommand.storage_type == 'db':
+                HBNBCommand.classes['BaseModel']._sa_session.rollback()  # Rollback session
+        except UnmappedInstanceError:
+            print("** error: cannot save an unmapped instance (like BaseModel directly with DBStorage) **")
+            if HBNBCommand.storage_type == 'db':
+                HBNBCommand.classes['BaseModel']._sa_session.rollback()
         except Exception as e:
-            print(f"** an error occurred during save: {e} **")
+            print(f"** failed to save: {e} **")
+            if HBNBCommand.storage_type == 'db' and hasattr(HBNBCommand.classes['BaseModel'], '_sa_session'):
+                HBNBCommand.classes['BaseModel']._sa_session.rollback()
 
     def help_create(self):
         """ Help information for the create method """
@@ -189,7 +192,12 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: create <className>\n")
 
     def do_show(self, args):
-        """ Method to show an individual object """
+        """Prints the string representation of an instance
+based on the class name and id"""
+        if not args:
+            print("** class name missing **")
+            return
+
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -197,10 +205,6 @@ class HBNBCommand(cmd.Cmd):
         # guard against trailing args
         if c_id and ' ' in c_id:
             c_id = c_id.partition(' ')[0]
-
-        if not c_name:
-            print("** class name missing **")
-            return
 
         if c_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
@@ -212,9 +216,12 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            obj = storage._FileStorage__objects[key]
+            print(obj)
         except KeyError:
             print("** no instance found **")
+        except Exception as e: # Broad exception for other potential errors
+            print(f"An error occurred: {e}")
 
     def help_show(self):
         """ Help information for the show command """
@@ -222,7 +229,11 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: show <className> <objectId>\n")
 
     def do_destroy(self, args):
-        """ Destroys a specified object """
+        """Deletes an instance based on the class name and id"""
+        if not args:
+            print("** class name missing **")
+            return
+
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -248,6 +259,8 @@ class HBNBCommand(cmd.Cmd):
             storage.save()
         except KeyError:
             print("** no instance found **")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def help_destroy(self):
         """ Help information for the destroy command """
@@ -255,21 +268,20 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: destroy <className> <objectId>\n")
 
     def do_all(self, args):
-        """ Shows all objects, or all objects of a class"""
+        """Prints all string representation of all instances
+based or not on the class name"""
         print_list = []
-
         if args:
-            args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
+            params = shlex.split(args)
+            class_name = params[0]
+            if class_name not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in HBNBCommand.storage.all(HBNBCommand.classes[class_name]).items(): # Use HBNBCommand.storage
                 print_list.append(str(v))
-
+        else:
+            for k, v in HBNBCommand.storage.all().items(): # Use HBNBCommand.storage
+                print_list.append(str(v))
         print(print_list)
 
     def help_all(self):
@@ -290,7 +302,12 @@ class HBNBCommand(cmd.Cmd):
         print("Usage: count <class_name>")
 
     def do_update(self, args):
-        """ Updates a certain object with new info """
+        """Updates an instance based on the class name and id
+by adding or updating attribute"""
+        if not args:
+            print("** class name missing **")
+            return
+
         c_name = c_id = att_name = att_val = kwargs = ''
 
         # isolate cls from id/args, ex: (<cls>, delim, <id/args>)
