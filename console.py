@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+import shlex # Import shlex for robust argument splitting
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -114,48 +115,71 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        """ Create an object of any class. Correctly parses parameters.
+        Format: create <ClassName> <param1>=<value1> <param2>=<value2> ...
+        String values must be in quotes if they contain spaces.
+        Underscores in quoted strings are replaced by spaces.
+        Example: create Place name=\"My little house\" number_rooms=4
+        """
         if not args:
             print("** class name missing **")
             return
 
-        parts = args.split()
-        class_name = parts[0]
+        try:
+            arg_list = shlex.split(args)
+        except ValueError as e:
+            print(f"** invalid input: {e} (check quotes) **")
+            return
+
+        if not arg_list:
+            # Should not happen if args is not empty, but defensive
+            print("** class name missing **")
+            return
+
+        class_name = arg_list[0]
+        params_list = arg_list[1:]
 
         if class_name not in HBNBCommand.classes:
-            print("** class doesn\'t exist **")
+            print("** class doesn't exist **")
             return
 
         new_instance = HBNBCommand.classes[class_name]()
 
-        for param in parts[1:]:
-            if "=" not in param:
-                continue  # Skip malformed parameters
-
-            key, value_str = param.split("=", 1)
-
-            # Try to parse value
-            try:
-                if value_str.startswith('"') and value_str.endswith('"'):
-                    # String value
-                    value = value_str[1:-1].replace('_', ' ').replace('\\"', '"')
-                elif '.' in value_str:
-                    # Float value
-                    value = float(value_str)
-                else:
-                    # Integer value
-                    value = int(value_str)
-                setattr(new_instance, key, value)
-            except ValueError:
-                # Skip if value parsing fails
+        for param_pair_str in params_list:
+            if "=" not in param_pair_str:
+                print(f"** skipping malformed parameter: {param_pair_str} **")
                 continue
 
-        storage.save()
+            key, value_str = param_pair_str.split("=", 1)
+            parsed_value = None
+            try:
+                if value_str.startswith('"') and value_str.endswith('"'):
+                    parsed_value = value_str[1:-1].replace('_', ' ') \
+                                               .replace('\\"', '"')
+                elif key in HBNBCommand.types:
+                    param_type = HBNBCommand.types[key]
+                    parsed_value = param_type(value_str)
+                else:
+                    # Attempt numeric conversion for unquoted values.
+                    if '.' in value_str:
+                        try:
+                            parsed_value = float(value_str)
+                        except ValueError:
+                            pass  # Fall to int or treat as string
+                    if parsed_value is None:  # If not float or still None
+                        try:
+                            parsed_value = int(value_str)  # Try int
+                        except ValueError:
+                            # Default to string if all other parsing fails
+                            parsed_value = value_str
+
+                setattr(new_instance, key, parsed_value)
+            except ValueError:  # From param_type(value_str) if type is defined
+                print(f"** invalid value for {key}: '{value_str}' **")
+                continue
+
+        new_instance.save()
         print(new_instance.id)
-        # The second storage.save() call here is redundant as the BaseModel's
-        # __init__ already calls save(). However, to match the original behavior
-        # it can be uncommented if needed.
-        # storage.save()
 
     def help_create(self):
         """ Help information for the create method """
