@@ -10,7 +10,8 @@ import os
 Base = declarative_base()
 
 
-class BaseModel:
+class BaseModel(Base):
+    __abstract__ = True
     """A base class for all hbnb models"""
     id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
@@ -23,28 +24,31 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
-            # Attributes that can be set via kwargs for any BaseModel derivative
-            # This includes Columns defined in subclasses.
-            # Get class-level attributes
+            # Attributes that can be set via kwargs for any BaseModel
+            # derivative. This includes Columns defined in subclasses.
+            # Get class-level attributes  #  Ensure two spaces before comment
             allowed_keys = set(self.__class__.__dict__.keys())
-            # Add instance-level attributes that might be set before this loop
-            # by a superclass or similar
-            # For BaseModel itself, primary ones are id, created_at, updated_at
-            # This check needs to be robust for inheritance.
+            # Add instance-level attributes that might be set before this
+            # loop by a superclass or similar.
+            # For BaseModel itself, primary ones are id, created_at,
+            # updated_at. This check needs to be robust for inheritance.
 
             for key, value in kwargs.items():
                 if key == "__class__":
                     continue
 
-                # Check if the key is a legitimate attribute to set
-                # Legit: id, created_at, updated_at, or any Column name in class
+                # Check if the key is a legitimate attribute to set.
+                # Legit: id, created_at, updated_at, or any Column name
+                # in class.
                 if key not in ['id', 'created_at', 'updated_at'] and \
                    not hasattr(self.__class__, key):
-                    # If it's not a base known key and not a class attribute
-                    # (like a Column)
+                    # If it's not a base known key and not a class
+                    # attribute (like a Column).
                     # Then it's an unexpected kwarg for this model type.
                     raise KeyError(
-                        f"Invalid attribute '{key}' for class {self.__class__.__name__}")
+                        f"Invalid attribute '{key}' for "
+                        f"class {self.__class__.__name__}"
+                    )
 
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(

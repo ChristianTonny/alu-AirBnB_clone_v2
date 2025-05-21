@@ -156,7 +156,7 @@ class HBNBCommand(cmd.Cmd):
             try:
                 if value_str.startswith('"') and value_str.endswith('"'):
                     # Correctly handle escaped quotes within the string value
-                    parsed_value = value_str[1:-1].replace('_', ' ').replace('\\"', '"')
+                    parsed_value = value_str[1:-1].replace('_', ' ').replace('\\\\"', '"')
                 elif key in HBNBCommand.types:
                     param_type = HBNBCommand.types[key]
                     parsed_value = param_type(value_str)
@@ -179,7 +179,8 @@ class HBNBCommand(cmd.Cmd):
             print(new_instance.id)
         except IntegrityError:
             # This message can be tailored if tests expect something more specific
-            print("** failed to save: missing required field or database constraint violation **")
+            print("** failed to save: missing required field or "
+                  "database constraint violation **")
         except Exception as e:
             print(f"** an error occurred during save: {e} **")
 
@@ -244,7 +245,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
