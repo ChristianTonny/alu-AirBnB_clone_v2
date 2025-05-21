@@ -156,7 +156,8 @@ class HBNBCommand(cmd.Cmd):
             try:
                 if value_str.startswith('"') and value_str.endswith('"'):
                     # Correctly handle escaped quotes within the string value
-                    parsed_value = value_str[1:-1].replace('_', ' ').replace('\\\\"', '"')
+                    parsed_value = value_str[1:-1].replace('_', ' ') \
+                                                .replace('\\\\"', '"')
                 elif key in HBNBCommand.types:
                     param_type = HBNBCommand.types[key]
                     parsed_value = param_type(value_str)
