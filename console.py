@@ -21,16 +21,16 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+        'State': State, 'City': City, 'Amenity': Amenity,
+        'Review': Review
+    }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
-            }
+        'number_rooms': int, 'number_bathrooms': int,
+        'max_guest': int, 'price_by_night': int,
+        'latitude': float, 'longitude': float
+    }
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -157,7 +157,7 @@ class HBNBCommand(cmd.Cmd):
                 if value_str.startswith('"') and value_str.endswith('"'):
                     # Correctly handle escaped quotes within the string value
                     parsed_value = value_str[1:-1].replace('_', ' ') \
-                                                .replace('\\\\"', '"')
+                        .replace('\\\\"', '"')
                 elif key in HBNBCommand.types:
                     param_type = HBNBCommand.types[key]
                     parsed_value = param_type(value_str)
@@ -172,8 +172,10 @@ class HBNBCommand(cmd.Cmd):
                             parsed_value = value_str  # Default to string
 
                 setattr(new_instance, key, parsed_value)
-            except ValueError:  # From param_type(value_str) if type is defined or int/float conversion
-                print(f"** invalid value for {key}: '{value_str}' (skipped) **")
+            # From param_type(value_str) if type is defined or int/float conversion
+            except ValueError:
+                print(
+                    f"** invalid value for {key}: '{value_str}' (skipped) **")
                 continue
         try:
             new_instance.save()

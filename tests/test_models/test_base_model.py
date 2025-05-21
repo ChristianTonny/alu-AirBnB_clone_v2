@@ -65,15 +65,15 @@ class test_basemodel(unittest.TestCase):
         elif storage_type == 'db':
             # For DB, check if the object can be retrieved from storage.
             # This assumes 'i' is a new object that should be in storage after save.
-            from models import storage as current_storage # Renamed to avoid conflict
+            from models import storage as current_storage  # Renamed to avoid conflict
             retrieved_obj = current_storage.all(self.value).get(key)
             self.assertIsNotNone(retrieved_obj,
                                  f"{self.name} instance not found in DB after save")
             self.assertEqual(retrieved_obj.id, i.id)
             # Optionally, add more specific database assertions here,
             # such as querying the database directly to verify the commit.
-        else: # Default to FileStorage behavior if HBNB_TYPE_STORAGE is not set
-            if not storage_type: # Or if you prefer explicit check for None or empty
+        else:  # Default to FileStorage behavior if HBNB_TYPE_STORAGE is not set
+            if not storage_type:  # Or if you prefer explicit check for None or empty
                 self.assertTrue(os.path.exists('file.json'),
                                 "file.json should exist (default FS check)")
                 with open('file.json', 'r') as f:
@@ -121,7 +121,7 @@ class test_basemodel(unittest.TestCase):
         new = self.value()
         self.assertEqual(type(new.updated_at), datetime.datetime)
         # Ensure updated_at is different from created_at by saving
-        time.sleep(0.001) # Ensure time moves
+        time.sleep(0.001)  # Ensure time moves
         new.save()
         n = new.to_dict()
         reloaded_new = self.value(**n)
