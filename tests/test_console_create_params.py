@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 from io import StringIO
 import os
-#  import json  # Not strictly needed for these tests
+# import json  # Not strictly needed for these tests
 from console import HBNBCommand
 from models.engine.file_storage import FileStorage
 from models.state import State
