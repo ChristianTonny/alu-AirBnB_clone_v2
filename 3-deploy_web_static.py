@@ -1,22 +1,22 @@
 #!/usr/bin/python3
 """
-Fabric script that creates and distributes an archive to web servers.
-Combines functionality of 1-pack_web_static.py and 2-do_deploy_web_static.py
+Fabric script that creates and distributes an archive to web servers
 """
 
 from fabric.api import env, local, put, run
 from datetime import datetime
 import os.path
 
-# Define server details
-env.hosts = ['54.162.15.4', '3.87.58.1'] # web-01 and web-02 IPs
+env.hosts = ['54.162.15.4', '3.87.58.1']
 env.user = 'ubuntu'
-# For SSH key, use -i /path/to/your/key with fab command
 
 
 def do_pack():
-    """Generates a .tgz archive from the web_static folder.
-    Identical to do_pack in 1-pack_web_static.py
+    """
+    Generates a .tgz archive from the web_static folder
+
+    Returns:
+        str: Archive path if generated correctly, otherwise None
     """
     try:
         local("mkdir -p versions")
@@ -25,13 +25,9 @@ def do_pack():
         archive_name = "web_static_{}.tgz".format(timestamp)
         archive_path = "versions/{}".format(archive_name)
 
-        print("Packing web_static to {}".format(archive_path))
         result = local("tar -cvzf {} web_static".format(archive_path))
 
         if result.succeeded:
-            file_size = os.path.getsize(archive_path)
-            print("web_static packed: {} -> {}Bytes".format(
-                archive_path, file_size))
             return archive_path
         else:
             return None
@@ -40,59 +36,53 @@ def do_pack():
 
 
 def do_deploy(archive_path):
-    """Distributes an archive to web servers.
-    Identical to do_deploy in 2-do_deploy_web_static.py
+    """
+    Distributes an archive to web servers
+
+    Args:
+        archive_path (str): Path to the archive to deploy
+
+    Returns:
+        bool: True if all operations were successful, False otherwise
     """
     if not os.path.exists(archive_path):
-        print(f"Archive path {archive_path} does not exist locally.")
         return False
 
     try:
         archive_filename = os.path.basename(archive_path)
         folder_name = archive_filename.replace(".tgz", "")
-        remote_tmp_path = f"/tmp/{archive_filename}"
-        release_path = f"/data/web_static/releases/{folder_name}/"
+        remote_tmp_path = "/tmp/{}".format(archive_filename)
+        release_path = "/data/web_static/releases/{}/".format(folder_name)
 
         if put(archive_path, remote_tmp_path).failed:
-            print(f"Failed to upload {archive_path} to {remote_tmp_path}")
             return False
-        if run(f"mkdir -p {release_path}").failed:
-            print(f"Failed to create release directory {release_path}")
+        if run("mkdir -p {}".format(release_path)).failed:
             return False
-        if run(f"tar -xzf {remote_tmp_path} -C {release_path}").failed:
-            print(f"Failed to uncompress archive to {release_path}")
+        if run("tar -xzf {} -C {}".format(remote_tmp_path, release_path)).failed:
             return False
-        if run(f"rm {remote_tmp_path}").failed:
-            print(f"Failed to delete archive {remote_tmp_path} from server.")
+        if run("rm {}".format(remote_tmp_path)).failed:
             return False
-        if run(f"mv {release_path}web_static/* {release_path}").failed:
-            print(f"Failed to move content from {release_path}web_static/*")
+        if run("mv {}web_static/* {}".format(release_path, release_path)).failed:
             return False
-        if run(f"rm -rf {release_path}web_static").failed:
-            print(f"Failed to remove directory {release_path}web_static")
+        if run("rm -rf {}web_static".format(release_path)).failed:
             return False
         if run("rm -rf /data/web_static/current").failed:
-            print("Failed to delete current symbolic link.")
             return False
-        if run(f"ln -s {release_path} /data/web_static/current").failed:
-            print(f"Failed to create new symbolic link to {release_path}")
+        if run("ln -s {} /data/web_static/current".format(release_path)).failed:
             return False
 
-        print("New version deployed!")
         return True
-    except Exception as e:
-        print(f"An deployment exception occurred: {e}")
+
+    except Exception:
         return False
 
 
 def deploy():
-    """Creates an archive and deploys it to web servers.
-
-    Calls do_pack() to create an archive, then calls do_deploy()
-    to distribute this archive to the servers.
+    """
+    Creates an archive and deploys it to web servers
 
     Returns:
-        bool: True if packing and deployment succeed, False otherwise.
+        bool: True if packing and deployment succeed, False otherwise
     """
     archive_path = do_pack()
     if not archive_path:
@@ -106,4 +96,4 @@ def deploy():
 # if success:
 # print("Deployment finished successfully.")
 # else:
-# print("Deployment failed.") 
+# print("Deployment failed.")
