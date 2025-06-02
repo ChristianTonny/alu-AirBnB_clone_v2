@@ -8,6 +8,7 @@ from fabric.api import local
 from datetime import datetime
 import os
 
+
 def do_pack():
     """
     Generates a .tgz archive from the web_static folder.
@@ -38,19 +39,22 @@ def do_pack():
 
         if result.succeeded:
             file_size = os.path.getsize(archive_path)
-            print("web_static packed: {} -> {}Bytes".format(archive_path, file_size))
+            print("web_static packed: {} -> {}Bytes".format(
+                archive_path, file_size))
             return archive_path
         else:
             return None
     except Exception:
-        # In case of any exception during the process (e.g., tar not found,
-        # permissions issues, web_static folder not found), return None.
+        # Catch exceptions (e.g., tar issues, folder not found)
+        # and return None as per requirements.
         return None
 
+
 if __name__ == "__main__":
-    # This part is for local testing if needed, Fabric usually calls functions directly
-    # For example, to test: python3 1-pack_web_static.py
-    # However, Fabric's way is `fab -f 1-pack_web_static.py do_pack`
+    # This part is for local testing.
+    # Fabric normally calls functions like do_pack() directly.
+    # Example for local test: python3 1-pack_web_static.py
+    # Fabric's way to run: fab -f 1-pack_web_static.py do_pack
     path = do_pack()
     if path:
         print("Archive created successfully: {}".format(path))
