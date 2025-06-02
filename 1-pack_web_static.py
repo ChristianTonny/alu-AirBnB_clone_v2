@@ -59,4 +59,4 @@ if __name__ == "__main__":
     if path:
         print("Archive created successfully: {}".format(path))
     else:
-        print("Failed to create archive.") 
+        print("Failed to create archive.")
