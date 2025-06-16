@@ -1,206 +1,116 @@
 # 🏠 HBNB - AirBnB Clone v2
 
-This repository contains a complete implementation of an AirBnB clone project, featuring both a command-line console interface and a Flask web application. This project demonstrates backend development, database management, web frameworks, and template rendering.
+This repository contains the initial stage of a student project to build a clone of the AirBnB website. This stage implements a backend interface, or console, to manage program data. Console commands allow the user to create, update, and destroy objects, as well as manage file storage. Using a system of JSON serialization/deserialization, storage is persistent between sessions.
 
-## 📋 Table of Contents
-- [🏠 HBNB - AirBnB Clone v2](#-hbnb---airbnb-clone-v2)
-  - [📋 Table of Contents](#-table-of-contents)
-  - [🌟 Project Overview](#-project-overview)
-  - [🚀 Features](#-features)
-  - [🛠️ Installation \& Setup](#️-installation--setup)
-    - [Prerequisites](#prerequisites)
-    - [Quick Start](#quick-start)
-  - [🌐 Flask Web Application](#-flask-web-application)
-    - [Available Routes](#available-routes)
-    - [Running Flask Applications](#running-flask-applications)
-    - [Flask Project Structure](#flask-project-structure)
-  - [💾 Console Application](#-console-application)
-    - [Console Usage](#console-usage)
-    - [Console Commands](#console-commands)
-  - [🗄️ Storage Engines](#️-storage-engines)
-  - [📁 Repository Structure](#-repository-structure)
-  - [🧪 Testing](#-testing)
-  - [🤝 Contributing](#-contributing)
-  - [👥 Authors](#-authors)
+---
 
-## 🌟 Project Overview
+<center><h3>Repository Contents by Project Task</h3> </center>
 
-This project is a comprehensive web application inspired by AirBnB, implementing:
+| Tasks | Files | Description |
+| ----- | ----- | ------ |
+| 0: Authors/README File | [AUTHORS](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/AUTHORS) | Project authors |
+| 1: Pep8 | N/A | All code is pep8 compliant|
+| 2: Unit Testing | [/tests](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/tree/master/tests) | All class-defining modules are unittested |
+| 3. Make BaseModel | [/models/base_model.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/base_model.py) | Defines a parent class to be inherited by all model classes|
+| 4. Update BaseModel w/ kwargs | [/models/base_model.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/base_model.py) | Add functionality to recreate an instance of a class from a dictionary representation|
+| 5. Create FileStorage class | [/models/engine/file_storage.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/engine/file_storage.py) [/models/__init__.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/__init__.py) [/models/base_model.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/base_model.py) | Defines a class to manage persistent file storage system|
+| 6. Console 0.0.1 | [console.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/console.py) | Add basic functionality to console program, allowing it to quit, handle empty lines and ^D |
+| 7. Console 0.1 | [console.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/console.py) | Update the console with methods allowing the user to create, destroy, show, and update stored data |
+| 8. Create User class | [console.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/console.py) [/models/engine/file_storage.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/engine/file_storage.py) [/models/user.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/user.py) | Dynamically implements a user class |
+| 9. More Classes | [/models/user.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/user.py) [/models/place.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/place.py) [/models/city.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/city.py) [/models/amenity.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/amenity.py) [/models/state.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/state.py) [/models/review.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/review.py) | Dynamically implements more classes |
+| 10. Console 1.0 | [console.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/console.py) [/models/engine/file_storage.py](https://github.com/ChristianTonny/alu-AirBnB_clone_v2/blob/master/models/engine/file_storage.py) | Update the console and file storage system to work dynamically with all  classes update file storage |
+<br>
+<br>
+<center> <h2>General Use</h2> </center>
 
-- **Backend Interface**: Command-line console for data management
-- **Web Interface**: Flask-based web application with dynamic content
-- **Database Integration**: Support for both file storage and MySQL database
-- **Template Rendering**: Dynamic HTML generation with Jinja2
-- **RESTful Design**: Clean URL routing and HTTP response handling
+1. First clone this repository.
 
-## 🚀 Features
-
-### Console Features
-- ✅ Object-oriented data model (User, State, City, Amenity, Place, Review)
-- ✅ JSON serialization/deserialization for persistent storage
-- ✅ CRUD operations via command-line interface
-- ✅ Two storage engines: FileStorage and DBStorage
-
-### Web Features
-- ✅ Flask web framework implementation
-- ✅ Dynamic route handling with parameters
-- ✅ HTML template rendering with Jinja2
-- ✅ Static file serving (CSS, images)
-- ✅ Database integration for dynamic content
-- ✅ Responsive web design
-
-## 🛠️ Installation & Setup
-
-### Prerequisites
-- Python 3.12+ 
-- MySQL 5.7+ (for database storage)
-- pip3 package manager
-
-### Quick Start
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ChristianTonny/alu-AirBnB_clone_v2.git
-   cd alu-AirBnB_clone_v2
-   ```
-
-2. **Activate the virtual environment:**
-   ```powershell
-   # On Windows
-   .venv\Scripts\Activate.ps1
-   
-   # On Linux/Mac
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   pip install Flask SQLAlchemy mysqlclient
-   ```
-
-4. **Set up database (optional for advanced features):**
-   ```bash
-   # Create MySQL databases
-   mysql -u root -p < setup_mysql_dev.sql
-   mysql -u root -p < setup_mysql_test.sql
-   ```
-
-## 🌐 Flask Web Application
-
-### Available Routes
-
-| Route | Description | Example |
-|-------|-------------|---------|
-| `/` | Welcome page | `Hello HBNB!` |
-| `/hbnb` | HBNB page | `HBNB` |
-| `/c/<text>` | Display C + text | `/c/is_fun` → `C is fun` |
-| `/python/<text>` | Display Python + text | `/python/is_cool` → `Python is cool` |
-| `/number/<n>` | Display number (integers only) | `/number/89` → `89 is a number` |
-| `/number_template/<n>` | HTML page with number | Dynamic HTML template |
-| `/number_odd_or_even/<n>` | Check if number is odd/even | Dynamic HTML template |
-| `/states_list` | List all states from DB | Dynamic state listing |
-| `/cities_by_states` | States with their cities | Dynamic nested listing |
-| `/states` | All states | Dynamic state listing |
-| `/states/<id>` | Specific state details | State with cities |
-| `/hbnb_filters` | Complete filters page | Full AirBnB-style interface |
-
-### Running Flask Applications
-
-**Basic Applications (No Database Required):**
-```bash
-# Activate virtual environment first
-.venv\Scripts\Activate.ps1
-
-# Run applications
-python -m web_flask.0-hello_route
-python -m web_flask.1-hbnb_route
-python -m web_flask.2-c_route
-python -m web_flask.3-python_route
-python -m web_flask.4-number_route
-python -m web_flask.5-number_template
-python -m web_flask.6-number_odd_or_even
+3. Once the repository is cloned locate the "console.py" file and run it as follows:
 ```
-
-**Database Applications:**
-```bash
-# Set environment variables and run
-HBNB_MYSQL_USER=hbnb_dev HBNB_MYSQL_PWD=hbnb_dev_pwd HBNB_MYSQL_HOST=localhost HBNB_MYSQL_DB=hbnb_dev_db HBNB_TYPE_STORAGE=db python -m web_flask.7-states_list
-
-HBNB_MYSQL_USER=hbnb_dev HBNB_MYSQL_PWD=hbnb_dev_pwd HBNB_MYSQL_HOST=localhost HBNB_MYSQL_DB=hbnb_dev_db HBNB_TYPE_STORAGE=db python -m web_flask.10-hbnb_filters
+/AirBnB_clone$ ./console.py
 ```
-
-**Testing the Applications:**
-```bash
-# Test with curl
-curl http://localhost:5000
-curl http://localhost:5000/c/is_fun
-curl http://localhost:5000/python/is_magic
-
-# Or open in browser
-# http://localhost:5000/hbnb_filters
+4. When this command is run the following prompt should appear:
 ```
-
-### Flask Project Structure
+(hbnb)
 ```
-web_flask/
-├── 0-hello_route.py          # Basic "Hello HBNB!" route
-├── 1-hbnb_route.py           # Multiple routes
-├── 2-c_route.py              # Variable routes with C
-├── 3-python_route.py         # Variable routes with defaults
-├── 4-number_route.py         # Integer validation
-├── 5-number_template.py      # HTML templates
-├── 6-number_odd_or_even.py   # Conditional templates
-├── 7-states_list.py          # Database integration
-├── 8-cities_by_states.py     # Nested data display
-├── 9-states.py               # Dynamic state pages
-├── 10-hbnb_filters.py        # Complete web interface
-├── templates/                # Jinja2 HTML templates
-│   ├── 5-number.html
-│   ├── 6-number_odd_or_even.html
-│   ├── 7-states_list.html
-│   ├── 8-cities_by_states.html
-│   ├── 9-states.html
-│   └── 10-hbnb_filters.html
-└── static/                   # CSS and images
-    ├── styles/
-    │   ├── 3-footer.css
-    │   ├── 3-header.css
-    │   ├── 4-common.css
-    │   └── 6-filters.css
-    └── images/
-        ├── icon.png
-        └── logo.png
+5. This prompt designates you are in the "HBnB" console. There are a variety of commands available within the console program.
+
+##### Commands
+    * create - Creates an instance based on given class
+
+    * destroy - Destroys an object based on class and UUID
+
+    * show - Shows an object based on class and UUID
+
+    * all - Shows all objects the program has access to, or all objects of a given class
+
+    * update - Updates existing attributes an object based on class name and UUID
+
+    * quit - Exits the program (EOF will as well)
+
+
+##### Alternative Syntax
+Users are able to issue a number of console command using an alternative syntax:
+
+	Usage: <class_name>.<command>([<id>[name_arg value_arg]|[kwargs]])
+Advanced syntax is implemented for the following commands: 
+
+    * all - Shows all objects the program has access to, or all objects of a given class
+
+	* count - Return number of object instances by class
+
+    * show - Shows an object based on class and UUID
+
+	* destroy - Destroys an object based on class and UUID
+
+    * update - Updates existing attributes an object based on class name and UUID
+
+<br>
+<br>
+<center> <h2>Examples</h2> </center>
+<h3>Primary Command Syntax</h3>
+
+###### Example 0: Create an object
+Usage: create <class_name>
 ```
+(hbnb) create BaseModel
+```
+```
+(hbnb) create BaseModel
+3aa5babc-efb6-4041-bfe9-3cc9727588f8
+(hbnb)                   
+```
+###### Example 1: Show an object
+Usage: show <class_name> <_id>
 
-## 💾 Console Application
+```
+(hbnb) show BaseModel 3aa5babc-efb6-4041-bfe9-3cc9727588f8
+[BaseModel] (3aa5babc-efb6-4041-bfe9-3cc9727588f8) {'id': '3aa5babc-efb6-4041-bfe9-3cc9727588f8', 'created_at': datetime.datetime(2020, 2, 18, 14, 21, 12, 96959), 
+'updated_at': datetime.datetime(2020, 2, 18, 14, 21, 12, 96971)}
+(hbnb)  
+```
+###### Example 2: Destroy an object
+Usage: destroy <class_name> <_id>
+```
+(hbnb) destroy BaseModel 3aa5babc-efb6-4041-bfe9-3cc9727588f8
+(hbnb) show BaseModel 3aa5babc-efb6-4041-bfe9-3cc9727588f8
+** no instance found **
+(hbnb)   
+```
+###### Example 3: Update an object
+Usage: update <class_name> <_id>
+```
+(hbnb) update BaseModel b405fc64-9724-498f-b405-e4071c3d857f first_name "person"
+(hbnb) show BaseModel b405fc64-9724-498f-b405-e4071c3d857f
+[BaseModel] (b405fc64-9724-498f-b405-e4071c3d857f) {'id': 'b405fc64-9724-498f-b405-e4071c3d857f', 'created_at': datetime.datetime(2020, 2, 18, 14, 33, 45, 729889), 
+'updated_at': datetime.datetime(2020, 2, 18, 14, 33, 45, 729907), 'first_name': 'person'}
+(hbnb)
+```
+<h3>Alternative Syntax</h3>
 
-The console application provides a command-line interface for managing AirBnB objects.
-
-### Console Usage
-
-1. **Start the console:**
-   ```bash
-   ./console.py
-   ```
-
-2. **Console prompt:**
-   ```
-   (hbnb) 
-   ```
-
-### Console Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `create` | Creates a new instance | `create User` |
-| `show` | Displays an instance | `show User 1234-5678` |
-| `destroy` | Deletes an instance | `destroy User 1234-5678` |
-| `all` | Shows all instances | `all` or `all User` |
-| `update` | Updates an instance | `update User 1234 name "John"` |
-| `quit`/`EOF` | Exits the console | `quit` |
-
-**Alternative Syntax:**
-```bash
+###### Example 0: Show all User objects
+Usage: <class_name>.all()
+```
 (hbnb) User.all()
 (hbnb) User.count()
 (hbnb) User.show("1234-5678")
